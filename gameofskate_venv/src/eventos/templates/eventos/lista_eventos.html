@@ -1,0 +1,171 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+
+<style type="text/css">
+	.profile-image {
+		object-fit: cover;
+		border-radius: 50%;
+		height: 100px;
+		width: 100px;
+	}
+    .perfil-link{
+        color: #000;
+    }
+    .evento-container{
+        border: 1px solid black;
+        border-radius: 10px;
+    }
+    .card-header{
+        background-color: lightgrey;
+    }
+
+    @media (max-width: 450px) {  
+        h2 {font-size:1.1rem;}
+        h3 {font-size:.6rem;}
+        h4 {font-size:.55rem; overflow-wrap: normal;}
+        p {font-size:.4rem;}
+        .profile-image {
+            height: 50px;
+            width: 50px;
+        }
+    }
+    @media (max-width: 652px) and (min-width: 450px) {  
+        h2 {font-size:1.3rem;}
+        h3 {font-size:.8rem;}
+        h4 {font-size:.7rem;  overflow-wrap: normal;}
+        p {font-size:.6rem;}
+        .profile-image {
+            height: 60px;
+            width: 60px;
+        }
+    }
+    @media (max-width: 768px) and (min-width: 652px) {  
+        h2 {font-size:1.6rem;}
+        h3 {font-size:1.3rem;}
+        h4 {font-size:1rem; overflow-wrap: normal;}
+        p {font-size:.8rem;}
+        .profile-image {
+            height: 75px;
+            width: 75px;
+        }
+    }
+</style>
+
+<div class="container">
+	<div class="card p-2">
+
+		{% if eventos_en_curso %}
+        <div class="card-body">
+            <div class="card-header mb-3">
+                <h2>Eventos en curso</h2>
+            </div>
+            <div class="container">
+                <div class="row">
+                    <h3 class="col-6">Creador</h3>
+                    <h3 class="col-6">Información del evento</h3>
+                </div>
+                {% for evento in eventos_en_curso %}
+                <div class="row evento-container p-3">
+                    <div class="col-6 creador-wrapper">
+                        <a class="perfil-link" href="{% url 'cuenta:view' user_id=evento.creador.pk %}">
+                            <img class="profile-image" src="{{evento.creador.profile_image.url}}" alt="Foto de perfil">
+                            <h4 class="m-3">{{evento.creador.username|truncatechars:30}}</h4>
+                        </a>
+                    </div>
+                    <div class="col-6 evento-wrapper">
+                        <a class="perfil-link d-flex flex-column" href="{% url 'eventos:evento-view' evento_id=evento.id %}">
+                            <h4 class="card-title">{{evento.nombre|truncatechars:30}}</h4>
+                            <p class="card-title">{{evento.descripcion|truncatechars:140}}</p>
+                        </a>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+		{% endif %}
+		{% if eventos_pendientes %}
+        <div class="card-body">
+            <div class="card-header mb-3">
+                <h2>Eventos pendientes</h2>
+            </div>
+            <div class="container">
+                <div class="row">
+                    <h3 class="col-6">Creador</h3>
+                    <h3 class="col-6">Información del evento</h3>
+                </div>
+                {% for evento in eventos_pendientes %}
+                <div class="row evento-container p-3">
+                    <div class="col-6 creador-wrapper">
+                        <a class="perfil-link" href="{% url 'cuenta:view' user_id=evento.creador.pk %}">
+                            <img class="profile-image" src="{{evento.creador.profile_image.url}}" alt="Foto de perfil">
+                            <h4 class="m-3">{{evento.creador.username|truncatechars:30}}</h4>
+                        </a>
+                    </div>
+                    <div class="col-6 evento-wrapper">
+                        <a class="perfil-link d-flex flex-column" href="{% url 'eventos:evento-view' evento_id=evento.id %}">
+                            <h4 class="card-title">{{evento.nombre|truncatechars:30}}</h4>
+                            <p class="card-title">{{evento.descripcion|truncatechars:140}}</p>
+                        </a>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+		{% endif %}
+        {% if eventos_finalizados %}
+        <div class="card-body">
+            <div class="card-header mb-3">
+                <h2>Eventos Finalizados</h2>
+            </div>
+            <div class="container">
+                <div class="row">
+                    <h3 class="col-3">Creador</h3>
+                    <h3 class="col-6">Información del evento</h3>
+                    <h3 class="col-3">Ganador</h3>
+                </div>
+                {% for evento in eventos_finalizados %}
+                <div class="row evento-container p-3">
+                    <div class="col-3 creador-wrapper">
+                        <a class="perfil-link" href="{% url 'cuenta:view' user_id=evento.creador.pk %}">
+                            <img class="profile-image" src="{{evento.creador.profile_image.url}}" alt="Foto de perfil">
+                            <h4 class="m-3">{{evento.creador.username|truncatechars:30}}</h4>
+                        </a>
+                    </div>
+                    <div class="col-6 evento-wrapper">
+                        <a class="perfil-link d-flex flex-column" href="{% url 'eventos:evento-view' evento_id=evento.id %}">
+                            <h4 class="card-title">{{evento.nombre|truncatechars:30}}</h4>
+                            <p class="card-title">{{evento.descripcion|truncatechars:140}}</p>
+                        </a>
+                    </div>
+                    <div class="col-3 ganador-wrapper">
+		                {% if evento.ganador %}
+                        <a class="perfil-link" href="{% url 'cuenta:view' user_id=evento.ganador.pk %}">
+                            <img class="profile-image" src="{{evento.ganador.profile_image.url}}" alt="Foto de perfil">
+                            <h4 class="m-3">{{evento.ganador.username|truncatechars:30}}</h4>
+                        </a>
+                        {% else %}
+                        <div class="perfil-link d-flex flex-grow-1 flex-row flex-wrap align-items-center">
+                            <img class="profile-image" src="{% static 'gameofskate/logo_250_250_transparent.png' %}" alt="Foto de perfil usuario eliminado">
+                            <h4 class="ml-3">Usuario eliminado</h4>
+                        </div>
+		                {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+		{% endif %}
+
+        {% if not eventos_en_curso and not eventos_pendientes and not eventos_finalizados %}
+		<div class="d-flex flex-row flex-grow-1 justify-content-center align-items-center p-4">
+			<p>No se encontraron eventos.</p>
+		</div>
+		{% endif %}
+		</div>
+	</div>
+	
+</div>
+
+{% endblock content %}

@@ -1,0 +1,260 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+
+<style type="text/css">
+	.imagen-container{
+		max-width: 250px;
+		height: auto;
+	}
+	.profile-image {
+		object-fit: cover;
+		border-radius: 50%;
+		height: 250px;
+		width: 250px;
+	}
+	.campo-heading{
+		color: var(--secondary-text-color);
+	}
+	.icono-container:hover {
+		cursor: pointer;
+		opacity: 0.3;
+	}
+	.amigos-icono{
+		color: #4287f5;
+		font-size: 40px;
+	}
+	.anadir-amigo-icono{
+		color: #4287f5;
+		font-size: 40px;
+	}
+	.amigos-text{
+		font-weight: 500;
+		color: black;
+	}
+	.amigos-btn{
+		background-color: #cccccc;
+		border-color: #cccccc;
+		color: #000;
+		font-weight: 500;
+	}
+	.amigos-btn:hover {
+		background-color: #bfbfbf;
+		border-color: #bfbfbf;
+	}
+	.dropdown-toggle::after { 
+		content: none; 
+	}
+	.card{
+		border-radius: 12px;
+	}
+	.material-icons{
+		font-size: 30px;
+	}
+	.material-icons:hover{
+		cursor: pointer;
+	}
+	.aceptar-solicitud-amistad{
+		color: green;
+	}
+	.aceptar-solicitud-amistad:hover {
+		opacity: 0.3;
+	}
+	.rechazar-solicitud-amistad:hover {
+		opacity: 0.3;
+	}
+	.rechazar-solicitud-amistad{
+		color: red;
+	}
+</style>
+
+<div class="container-fluid">
+	<div class="d-flex flex-row justify-content-center flex-wrap align-items-start">
+
+		<div class="card profile-card m-2">
+		  <div class="card-body">
+		  	<div class="d-flex flex-column justify-content-center p-4">
+		  		<div class="imagen-container mx-auto mb-4">
+		  			<img class="d-block border border-dark rounded-circle img-fluid mx-auto profile-image" alt="foto de perfil" id="id_profile_image" src="{{profile_image}}">
+		  		</div>
+		  		<p class="mt-4 mb-1 campo-heading">Email</p>
+		  		{%  if is_self or user.is_admin %}
+		  			<h5>{{email}}</h5>
+		  		{% else %}
+		  			{% if hide_email %}
+			  			<h5>**********</h5>
+			  		{% else %}
+			  			<h5>{{email}}</h5>
+			  		{% endif %}
+			  	{% endif %}
+		  		<p class="mt-4 mb-1 campo-heading">Username</p>
+		  		<h5>{{username}}</h5>
+
+		  		{% if is_self or user.is_admin %}
+		  		<a  class="mt-4 btn btn-primary" href="{% url 'cuenta:editar' user_id=id %}">Actualizar</a>
+		  		{% endif %}
+		  	</div>
+		  </div>
+		</div>
+
+		{% if request.user.is_authenticated %}
+		<div class="d-flex flex-column mb-4">
+
+			{% if solicitud_amistad_enviada == 0 %}
+			<div class="card m-2 p-4">
+				<div class="d-flex flex-row align-items-center">
+					<span class="amigo-text align-items-center mr-2">Aceptar Solicitud de Amistad</span>
+					<span id="id_cancelar_{{id}}" class="rechazar-solicitud-amistad material-icons p-1" onclick='triggerRechazarSolicitudAmistad("{{solicitud_amistad_pendiente_id}}")'>cancel</span>
+  					<span id="id_confirmar_{{id}}" class="aceptar-solicitud-amistad material-icons p-1" onclick='triggerAceptarSolicitudAmistad("{{solicitud_amistad_pendiente_id}}")'>check</span>
+				</div>
+			</div>
+			{% endif %}
+
+			<div class="card m-2 px-4 pb-4">
+				{% if is_friend == False and is_self == False %}
+					{% if solicitud_amistad_enviada == 1 %}
+					<div class="d-flex flex-column align-items-center pt-4">
+						<button class="btn btn-danger" id="id_cancelar_solicitud_amistad_btn">
+							Cancelar solicitud de amistad
+						</button>
+					</div>
+					{% endif %}
+					{% if solicitud_amistad_enviada == -1 %}
+					<div class="d-flex flex-column align-items-center pt-4">
+						<button class="btn btn-primary" id="id_enviar_solicitud_amistad_btn">
+							Enviar solicitud de amistad
+						</button>
+					</div>
+					{% endif %}
+				{% endif %}
+					
+				{% if is_friend %}
+					<div class="dropdown pt-4 m-auto">
+						<button class="btn btn-secondary dropdown-toggle amigos-btn" type="button" id="id_amigos_toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+						Amigos
+						</button>
+						<div class="dropdown-menu" aria-labelledby="id_amigos_toggle">
+							<a class="dropdown-item" href="#" onclick="eliminarAmigo('{{id}}', onAmigoEliminado)">Eliminar amigo</a>
+						</div>
+					</div>
+				{% endif %}
+				
+		  		<div class="d-flex flex-column pt-4">
+					<a href="{% url 'amistad:lista-amigos' user_id=id %}">
+						<div class="d-flex flex-row align-items-center justify-content-center icono-container">
+							<span class="material-icons mr-2 amigos-icono">contact_page</span><span class="amigos-text">Amigos ({{amigos|length}})</span>
+						</div>
+					</a>
+				</div>
+
+				<div class="d-flex flex-column pt-4">
+					<a href="{% url 'eventos:lista-eventos' user_id=id %}">
+						<div class="d-flex flex-row align-items-center justify-content-center icono-container">
+							<span class="material-icons mr-2 amigos-icono">skateboarding</span><span class="amigos-text">Eventos ({{eventos|length}})</span>
+						</div>
+					</a>
+				</div>
+
+			</div>
+
+			{% if is_self %}
+			<a  class="mt-4 btn btn-primary" href="{% url 'eventos:crear-evento' %}">CREAR EVENTO</a>
+			{% endif %}
+
+			{% if solicitudes_amistad %}
+			<div class="card m-2 px-4 pb-4">
+		  		<div class="d-flex flex-column pt-4">
+					<a href="{% url 'amistad:solicitudes-amistad' user_id=id %}">
+						<div class="d-flex flex-row align-items-center justify-content-center icono-container">
+							<span class="material-icons mr-2 anadir-amigo-icono">person_add</span><span class="amigos-text">Solicitudes de amistad ({{solicitudes_amistad|length}})</span>
+						</div>
+					</a>
+				</div>
+			</div>
+			{% endif %}
+
+			{% if solicitudes_evento %}
+			<div class="card m-2 px-4 pb-4">
+		  		<div class="d-flex flex-column pt-4">
+					<a href="{% url 'eventos:solicitudes-eventos' user_id=id %}">
+						<div class="d-flex flex-row align-items-center justify-content-center icono-container">
+							<span class="material-icons mr-2 anadir-amigo-icono">group_add</span><span class="amigos-text">Invitaciones a eventos ({{solicitudes_evento|length}})</span>
+						</div>
+					</a>
+				</div>
+			</div>
+			{% endif %}
+			
+		</div>
+		{% endif %}
+
+		
+	</div>
+</div>
+
+
+<script type="text/javascript">
+
+	function onSolicitudAmistadEnviada(){
+		location.reload();
+	}
+
+	function onSolicitudAmistadCancelada(){
+		location.reload();
+	}
+
+	function onAmigoEliminado(){
+		location.reload();
+	}
+
+	function onSolicitudAmistadAceptada(){
+		location.reload();
+	}
+
+	function onSolicitudAmistadRechazada(){
+		location.reload();
+	}
+
+
+	var enviarSolicitudAmistadBtn = document.getElementById("id_enviar_solicitud_amistad_btn")
+	if (enviarSolicitudAmistadBtn != null){
+		enviarSolicitudAmistadBtn.addEventListener("click", function(){
+			enviarSolicitudAmistad("{{id}}", onSolicitudAmistadEnviada)
+		})
+	}
+
+	var cancelarSolicitudAmistadBtn = document.getElementById("id_cancelar_solicitud_amistad_btn")
+	if(cancelarSolicitudAmistadBtn != null){
+		cancelarSolicitudAmistadBtn.addEventListener("click", function(){
+			cancelarSolicitudAmistad("{{id}}", onSolicitudAmistadCancelada)
+		})
+	}
+
+	var eliminarAmigoBtn = document.getElementById("id_eliminar_amigo_btn")
+	if (eliminarAmigoBtn != null){
+		eliminarAmigoBtn.addEventListener("click", function(){
+			eliminarAmigo("{{id}}", onAmigoEliminado)
+		})
+	}
+
+	function triggerAceptarSolicitudAmistad(solicitud_amistad_id){
+		aceptarSolicitudAmistad(solicitud_amistad_id, onSolicitudAmistadAceptada)
+	}
+
+	function triggerRechazarSolicitudAmistad(solicitud_amistad_id){
+		rechazarSolicitudAmistad(solicitud_amistad_id, onSolicitudAmistadRechazada)
+	}
+	
+</script>
+
+{% include 'amistad/snippets/enviar_solicitud_amistad.html' %}
+{% include 'amistad/snippets/aceptar_solicitud_amistad.html' %}
+{% include 'amistad/snippets/rechazar_solicitud_amistad.html' %}
+{% include 'amistad/snippets/cancelar_solicitud_amistad.html' %}
+{% include 'amistad/snippets/eliminar_amigo.html' %}
+
+{% endblock content %}
+
+
+

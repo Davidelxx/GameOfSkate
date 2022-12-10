@@ -1,0 +1,26 @@
+<script type="text/javascript">
+	
+	function aceptarSolicitudAmistad(solicitud_amistad_id, funcionReload){
+		var url = "{% url 'amistad:aceptar-solicitud-amistad' solicitud_amistad_id=53252623623632623 %}".replace("53252623623632623", solicitud_amistad_id)
+		$.ajax({
+			type: 'GET',
+			dataType: "json",
+			url: url,
+			timeout: 5000,
+			success: function(data) {
+				if(data['response'] == "Solicitud de amistad aceptada."){
+					
+				} else if(data['response'] != null){
+					alert(data['response'])
+				}
+			},
+			error: function(data) {
+				alert("Algo ha ido mal.")
+			},
+			complete: function(data){
+				funcionReload()
+			}
+		});
+	}
+	
+</script>

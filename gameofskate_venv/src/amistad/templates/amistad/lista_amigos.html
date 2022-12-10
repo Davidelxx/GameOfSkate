@@ -1,0 +1,110 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+
+<style type="text/css">
+	.profile-image {
+		object-fit: cover;
+		border-radius: 50%;
+		height: 100px;
+		width: 100px;
+	}
+	.card{
+		border-radius: 12px;
+	}
+	.amigos-text{
+		color: #000;
+		font-weight: 500;
+	}
+	.amigos-text-container{
+		border: 1px solid #cccccc;
+		border-radius: 12px;
+	}
+	.amigos-btn:hover {
+		background-color: #bfbfbf;
+		border-color: #bfbfbf;
+	}
+	.dropdown-toggle::after { 
+		content: none; 
+	}
+	.perfil-link{
+		color: #000;
+	}
+	.checkmark-icon{
+		color: green;
+	}
+	.cancel-icon{
+		color: red;
+	}
+	
+</style>
+
+<div class="container">
+	<div class="card p-2">
+
+		{% if amigos %}
+		<div class="d-flex flex-row flex-wrap">
+		{% for amigo in amigos %}
+		<div class="card flex-row flex-grow-1 p-2 mx-2 my-2 align-items-center">
+			<a class="perfil-link" href="{% url 'cuenta:view' user_id=amigo.0.pk %}">
+				<div class="card-image m-2">
+					<img class="img-fluid profile-image" src="{{amigo.0.profile_image.url}}" alt="">
+				</div>
+			</a>
+			
+			<div class="card-center px-2">
+				<a class="perfil-link" href="{% url 'cuenta:view' user_id=amigo.0.pk %}">
+					<h4 class="card-title">{{amigo.0.username|truncatechars:30}}</h4>
+				</a>
+			</div>
+			
+			<div class="d-flex flex-row card-right flex-grow-1 justify-content-end mx-2">
+				{% if amigo.1 %}
+					<div class="d-flex flex-row amigos-text-container p-3">
+						<p class="amigos-text m-auto">
+							Amigos 
+						</p>
+						<span class="material-icons checkmark-icon m-auto pl-2">
+						check_circle_outline
+						</span>
+					</div>
+				{% else %}
+					{% if amigo.0 !=  request.user %}
+						<div class="d-flex flex-row amigos-text-container p-3">
+							<p class="amigos-text m-auto">
+								No sois amigos
+							</p>
+							<span class="material-icons cancel-icon m-auto pl-2">cancel</span>
+						</div>
+					{% endif %}
+				{% endif %}
+				{% if amigo.0 == request.user %}
+					<div class="d-flex flex-row amigos-text-container p-3">
+						<p class="amigos-text m-auto">
+							Este eres tú
+						</p>
+						<span class="material-icons m-auto pl-2">
+						person_pin
+						</span>
+					</div>
+				{% endif %}
+			</div>
+		</div>
+		{% if forloop.counter|divisibleby:2 %}
+		</div><div class="d-flex flex-row flex-wrap">
+		{% endif %}
+		
+		{% endfor %}
+		
+		{% else %}
+		<div class="d-flex flex-row flex-grow-1 justify-content-center align-items-center p-4">
+			<p>No tienes amigos</p>
+		</div>
+		{% endif %}
+		</div>
+	</div>
+	
+</div>
+
+{% endblock content %}

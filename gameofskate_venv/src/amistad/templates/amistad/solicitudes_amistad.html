@@ -1,0 +1,111 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+
+
+<style type="text/css">
+	.profile-image {
+		object-fit: cover;
+		border-radius: 50%;
+		height: 100px;
+		width: 100px;
+	}
+	.card{
+		border-radius: 12px;
+	}
+	.dropdown-toggle::after { 
+		content: none; 
+	}
+	.profile-link{
+		color: #000;
+	}
+	.material-icons{
+		font-size: 30px;
+	}
+	.material-icons:hover{
+		cursor: pointer;
+	}
+	.aceptar-solicitud-amistad{
+		color: green;
+	}
+	.aceptar-solicitud-amistad:hover {
+		opacity: 0.3;
+	}
+	.rechazar-solicitud-amistad:hover {
+		opacity: 0.3;
+	}
+	.rechazar-solicitud-amistad{
+		color: red;
+	}
+	@media (max-width: 450px) { 
+		h4{font-size: 1.2rem}
+		.material-icons{font-size: 25px;}
+        .profile-image {
+            height: 75px;
+            width: 75px;
+        }
+    }
+</style>
+
+<div class="container">
+	<div class="card p-2">
+
+		{% if solicitudes_amistad %}
+		<div class="d-flex flex-row flex-wrap">
+			{% for solicitud in solicitudes_amistad %}
+			<div class="card flex-row flex-grow-1 p-2 mx-2 my-2 align-items-center">
+				<a class="profile-link" href="{% url 'cuenta:view' user_id=solicitud.remitente.id %}">
+					<div class="card-image m-2">
+						<img class="img-fluid profile-image" src="{{solicitud.remitente.profile_image.url}}" alt="">
+					</div>
+				</a>
+				<a class="profile-link" href="{% url 'cuenta:view' user_id=solicitud.remitente.id %}">
+					<div class="card-center px-2">
+						<h4 class="card-title">{{solicitud.remitente.username}}</h4>
+					</div>
+				</a>
+				<div class="d-flex flex-row card-right flex-grow-1 justify-content-end mx-2">
+					<span id="id_cancelar_{{solicitud.remitente.id}}" class="rechazar-solicitud-amistad material-icons p-1" onclick='triggerRechazarSolicitudAmistad("{{solicitud.id}}")'>cancel</span>
+					<span id="id_confirmar_{{solicitud.remitente.id}}" class="aceptar-solicitud-amistad material-icons p-1" onclick='triggerAceptarSolicitudAmistad("{{solicitud.id}}")'>check</span>
+				</div>
+			</div>
+			{% if forloop.counter|divisibleby:2 %}
+		</div>
+		<div class="d-flex flex-row flex-wrap">
+		{% endif %}
+		{% endfor %}
+		
+		{% else %}
+		<div class="d-flex flex-row flex-grow-1 justify-content-center align-items-center p-4">
+			<p>No se encontraron resultados</p>
+		</div>
+		{% endif %}
+		</div>
+	</div>
+	
+</div>
+
+<script type="text/javascript">
+
+	function onSolicitudAmistadAceptada(){
+		location.reload();
+	}
+
+	function onSolicitudAmistadRechazada(){
+		location.reload();
+	}
+
+	function triggerAceptarSolicitudAmistad(solicitud_amistad_id){
+		aceptarSolicitudAmistad(solicitud_amistad_id, onSolicitudAmistadAceptada)
+	}
+
+	function triggerRechazarSolicitudAmistad(solicitud_amistad_id){
+		rechazarSolicitudAmistad(solicitud_amistad_id, onSolicitudAmistadRechazada)
+	}
+</script>
+
+{% include 'amistad/snippets/aceptar_solicitud_amistad.html' %}
+{% include 'amistad/snippets/rechazar_solicitud_amistad.html' %}
+
+{% endblock content %}

@@ -1,0 +1,31 @@
+<script type="text/javascript">
+	
+	function cancelarSolicitudAmistad(id, funcionReload){
+		payload = {
+			"csrfmiddlewaretoken": "{{ csrf_token }}",
+			"destinatario_user_id": id,
+		}
+		$.ajax({
+			type: 'POST',
+			dataType: "json",
+			url: "{% url 'amistad:cancelar-solicitud-amistad' %}",
+			data: payload,
+			timeout: 5000,
+			success: function(data) {
+				if(data['response'] == "Solicitud de amistad cancelada."){
+
+				}
+				else if(data['response'] != null){
+					alert(data['response'])
+				}
+			},
+			error: function(data) {
+				alert("Algo ha ido mal.")
+			},
+			complete: function(data){
+				funcionReload()
+			}
+		});
+	}
+	
+</script>

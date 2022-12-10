@@ -1,0 +1,143 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+
+
+<style type="text/css">
+	.profile-image {
+		object-fit: cover;
+		border-radius: 50%;
+		height: 100px;
+		width: 100px;
+	}
+	.card{
+		border-radius: 12px;
+	}
+	.dropdown-toggle::after { 
+		content: none; 
+	}
+	.profile-link{
+		color: #000;
+	}
+	.material-icons{
+		font-size: 30px;
+	}
+	.material-icons:hover{
+		cursor: pointer;
+	}
+	.aceptar-solicitud-evento{
+		color: green;
+	}
+	.aceptar-solicitud-evento:hover {
+		opacity: 0.3;
+	}
+	.rechazar-solicitud-evento:hover {
+		opacity: 0.3;
+	}
+	.rechazar-solicitud-evento{
+		color: red;
+	}
+	.cabecera-wrapper{
+		border-bottom: .1rem solid black;
+	}
+
+	@media (max-width: 450px) {  
+        h2 {font-size:1.1rem;}
+        h3 {font-size:.6rem;}
+        h4 {font-size:.55rem; overflow-wrap: normal;}
+        p {font-size:.4rem;}
+		.material-icons{font-size: 15px;}
+        .profile-image {
+            height: 50px;
+            width: 50px;
+        }
+    }
+    @media (max-width: 652px) and (min-width: 450px) {  
+        h2 {font-size:1.3rem;}
+        h3 {font-size:.8rem;}
+        h4 {font-size:.7rem;  overflow-wrap: normal;}
+        p {font-size:.6rem;}
+		.material-icons{font-size: 20px;}
+        .profile-image {
+            height: 60px;
+            width: 60px;
+        }
+    }
+    @media (max-width: 768px) and (min-width: 652px) {  
+        h2 {font-size:1.6rem;}
+        h3 {font-size:1.3rem;}
+        h4 {font-size:1rem; overflow-wrap: normal;}
+        p {font-size:.8rem;}
+		.material-icons{font-size: 20px;}
+        .profile-image {
+            height: 75px;
+            width: 75px;
+        }
+    }
+</style>
+
+<div class="container">
+	<div class="card p-2">
+
+		{% if solicitudes_eventos %}
+		<div class="container">
+			<div class="row cabecera-wrapper">
+				<h3 class="col-4">Creador</h3>
+				<h3 class="col-6">Información del evento</h3>
+			</div>
+			{% for solicitud in solicitudes_eventos %}
+			<div class="row evento-container p-3">
+				<div class="col-4 creador-wrapper">
+					<a class="profile-link" href="{% url 'cuenta:view' user_id=solicitud.remitente.id %}">
+						<img class="profile-image" src="{{solicitud.remitente.profile_image.url}}" alt="Foto de perfil">
+						<h4 class="m-3">{{solicitud.remitente.username|truncatechars:30}}</h4>
+					</a>
+				</div>
+				<div class="col-6 evento-wrapper">
+					<a class="profile-link d-flex flex-column" href="{% url 'eventos:evento-view' evento_id=solicitud.evento.id %}">
+						<h4 class="card-title">{{solicitud.evento.nombre|truncatechars:30}}</h4>
+						<p class="card-title">{{solicitud.evento.descripcion}}</p>
+					</a>
+				</div>
+				<div class="col-2 d-flex align-items-center">
+					<span id="id_cancelar_{{solicitud.remitente.id}}" class="rechazar-solicitud-evento material-icons p-1" onclick='triggerRechazarSolicitudEvento("{{solicitud.id}}")'>cancel</span>
+					<span id="id_confirmar_{{solicitud.remitente.id}}" class="aceptar-solicitud-evento material-icons p-1" onclick='triggerAceptarSolicitudEvento("{{solicitud.id}}")'>check</span>
+				</div>
+			</div>
+			{% endfor %}
+		</div>
+		
+		{% else %}
+		<div class="d-flex flex-row flex-grow-1 justify-content-center align-items-center p-4">
+			<p>No se encontraron resultados</p>
+		</div>
+		{% endif %}
+		</div>
+	</div>
+	
+</div>
+
+<script type="text/javascript">
+
+	function onSolicitudEventoAceptada(){
+		location.reload();
+	}
+
+	function onSolicitudEventoRechazada(){
+		location.reload();
+	}
+
+	function triggerAceptarSolicitudEvento(solicitud_evento_id){
+		aceptarSolicitudEvento(solicitud_evento_id, onSolicitudEventoAceptada)
+	}
+
+	function triggerRechazarSolicitudEvento(solicitud_evento_id){
+		rechazarSolicitudEvento(solicitud_evento_id, onSolicitudEventoRechazada)
+	}
+</script>
+
+{% include 'eventos/snippets/aceptar_solicitud_evento.html' %}
+{% include 'eventos/snippets/rechazar_solicitud_evento.html' %}
+
+{% endblock content %}

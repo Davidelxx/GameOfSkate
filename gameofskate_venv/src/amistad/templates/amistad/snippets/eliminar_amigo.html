@@ -1,0 +1,31 @@
+<script type="text/javascript">
+	
+	function eliminarAmigo(id, funcionReload){
+		payload = {
+			"csrfmiddlewaretoken": "{{ csrf_token }}",
+			"destinatario_user_id": id,
+		}
+		$.ajax({
+			type: 'POST',
+			dataType: "json",
+			url: "{% url 'amistad:eliminar-amigo' %}",
+			timeout: 5000,
+			data: payload,
+			success: function(data) {
+				if(data['response'] == "Amigo eliminado con éxito."){
+
+				}
+				else if(data['response'] != null){
+					alert(data['response'])
+				}
+			},
+			error: function(data) {
+				alert("Algo ha ido mal.")
+			},
+			complete: function(data){
+				funcionReload()
+			}
+		});
+	}
+	
+</script>

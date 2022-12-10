@@ -1,0 +1,26 @@
+<script type="text/javascript">
+	
+	function aceptarSolicitudEvento(solicitud_evento_id, funcionReload){
+		var url = "{% url 'eventos:aceptar-solicitud-evento' solicitud_evento_id=53252623623632623 %}".replace("53252623623632623", solicitud_evento_id)
+		$.ajax({
+			type: 'GET',
+			dataType: "json",
+			url: url,
+			timeout: 5000,
+			success: function(data) {
+				if(data['response'] == "Invitación a evento aceptada."){
+					
+				} else if(data['response'] != null){
+					alert(data['response'])
+				}
+			},
+			error: function(data) {
+				alert("Algo ha ido mal.")
+			},
+			complete: function(data){
+				funcionReload()
+			}
+		});
+	}
+	
+</script>

@@ -1,0 +1,89 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+
+<style type="text/css">
+	.card-crear-evento {
+		width: 100%;
+		max-width: 400px;
+		padding: 15px;
+		margin: auto;
+	}
+	
+	.form-crear-evento input[type="text"], #id_descripcion {
+		margin-bottom: 10px;
+		border-bottom-right-radius: 0;
+		border-bottom-left-radius: 0;
+	}
+
+	
+</style>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/bbbootstrap/libraries@main/choices.min.css">
+<script src="https://cdn.jsdelivr.net/gh/bbbootstrap/libraries@main/choices.min.js"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.6.2/dist/css/bootstrap.min.css">
+
+<div class="container-fluid" id="id_app">
+	<div class="row justify-content-center">
+		<div class="card card-crear-evento">
+			<div class="card-body">
+				<form class="form-crear-evento" method="post">{% csrf_token %}
+					<input type="text" name="nombre" id="id_nombre" class="form-control" placeholder="Nombre del evento" required>
+					<textarea rows="3" name="descripcion" id="id_descripcion" class="form-control" placeholder="Descripción del evento" required></textarea>
+
+					<div>
+						<label for="id_participantes">Participantes</label>
+						<select name="participantes" id="id_participantes" placeholder="Buscar amigos" multiple required>
+							{% for amigo in amigos %}
+							<option id="id_{{amigo.pk}}" value="{{amigo.pk}}">{{amigo.username}}</option>
+							{% endfor %}
+						</select>
+					</div>
+					<div class="mt-1 d-flex justify-content-between">
+						<p v-on:click="seleccionar_todos()" class="btn btn-primary" id="id_select_all">Seleccionar todos</p>
+						<p v-on:click="eliminar_todos()" class="btn btn-secondary" id="id_reset">Eliminar selección</p>
+					</div>
+
+					<button class="btn btn-lg btn-primary btn-block mt-3" type="submit">Crear evento</button>
+				</form>
+			</div>
+		</div>
+		
+	</div>
+</div>
+
+<script>
+    let vue = new Vue({
+        el:'#id_app',
+        delimiters:["[[","]]"],
+        data: {
+            select_all_btn: $('#id_select_all'),
+            reset_btn: $('#id_reset'),
+			select_multiple: '',
+        },
+		mounted() {
+			this.select_multiple = new Choices('#id_participantes', {
+				searchFloor: 3,
+				itemSelectText: 'Pulsa para seleccionar',
+				removeItemButton: true,
+				searchPlaceholderValue: "Buscar amigos",
+				noResultsText: 'No se encontraron resultados',
+				noChoicesText: "No choices to choose from",
+			});
+		},
+		methods: {
+			seleccionar_todos() {
+				opciones = document.getElementsByClassName('choices__item')
+				for (let i = 0; i < opciones.length; i++) {
+					this.select_multiple.setChoiceByValue(opciones[i].dataset.value)		
+				}
+			},
+			eliminar_todos() {
+				this.select_multiple.removeActiveItems()
+			}
+		}
+    })
+</script>
+
+{% endblock content %}

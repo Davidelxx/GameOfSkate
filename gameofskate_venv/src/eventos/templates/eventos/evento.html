@@ -1,0 +1,204 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+
+<style type="text/css">
+	.profile-image {
+		object-fit: cover;
+		border-radius: 50%;
+		height: 100px;
+		width: 100px;
+	}
+    .perfil-link{
+        color: #000;
+    }
+    .trick-gif{
+        object-fit: cover;
+		border-radius: 50%;
+		height: 100px;
+		width: 100px;
+    }
+    .card-header{
+        background-color: lightgrey;
+    }
+	.separador{
+        border-bottom: 1px solid black;
+    }
+</style>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-confirm/3.3.2/jquery-confirm.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-confirm/3.3.2/jquery-confirm.min.js"></script>
+
+
+<div class="container" id="id_app">
+    <div class="card">
+        <div class="card-body">
+            <h2 class="card-header mb-3 text-center">{{evento.nombre}}</h2>
+            <h3>Descripción</h3>
+            <div class="container mb-3">
+                <p class="card-text">{{evento.descripcion}}</p>
+            </div>
+
+            <h3>Participantes</h3>
+            <div class="container">
+                <div class="row">
+                    {% for participante in participantes %}
+                    <div class="col-6 mb-3">
+                        <a class="perfil-link" href="{% url 'cuenta:view' user_id=participante.pk %}">
+                            <img class="profile-image" src="{{participante.profile_image.url}}" alt="Foto de perfil">
+                            <h4 class="m-3">{{participante.username|truncatechars:30}}</h4>
+                        </a>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+		    {% if evento.finalizado %}
+            <div class="container-fliud separador my-5"></div>
+            <div class="row">
+                <div class="col-6">
+                    <h3>Ganador</h3>
+                    <div class="container">
+		                {% if evento.ganador %}
+                        <a class="perfil-link d-flex flex-grow-1 flex-row flex-wrap align-items-center" href="{% url 'cuenta:view' user_id=evento.ganador.pk %}">
+                            <img class="profile-image" src="{{evento.ganador.profile_image.url}}" alt="Foto de perfil">
+                            <h4 class="ml-3">{{evento.ganador.username|truncatechars:30}}</h4>
+                        </a>
+		                {% else %}
+                        <div class="perfil-link d-flex flex-grow-1 flex-row flex-wrap align-items-center">
+                            <img class="profile-image" src="{% static 'gameofskate/logo_250_250_transparent.png' %}" alt="Foto de perfil usuario eliminado">
+                            <h4 class="ml-3">Usuario eliminado</h4>
+                        </div>
+		                {% endif %}
+                    </div>
+                </div>
+                <div class="col-6">
+                    <h3>Best Trick</h3>
+                    <div class="container d-flex align-items-center">
+
+                        <img v-if="this.trick == '360flip' || this.trick == '360 flip' | this.trick == 'treflip'" class="trick-gif" src="../../../static/gameofskate/360flip_trick.gif" alt="Gif de un truco">
+                        <img v-if="this.trick == 'bsflip' || this.trick == 'bs flip' | this.trick == 'backside flip'" class="trick-gif" src="../../../static/gameofskate/bsflip_trick.gif" alt="Gif de un truco">
+
+                        <h4 class="ml-3" id="id_best_trick">{{evento.best_trick|truncatechars:30}}</h4>
+                    </div>
+                </div>
+            </div>
+
+		    {% elif evento.en_curso %}
+		        {% if es_creador or user.is_admin %}
+            <form class="form-finalizar-evento" method="post" id="id_form_finalizar">{% csrf_token %}
+                <div class="d-flex">
+                    <div class="container-fluid">
+                        <label for="id_gandor">Ganador:</label>
+                        <select class="form-control" name="ganador" id="id_ganador" placeholder="Ganador" required>
+                            {% for participante in participantes %}
+                            <option value="{{participante.pk}}">{{participante.username}}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="container-fluid ml-2">
+                        <label for="id_best_trick_form">Best Trick:</label>
+                        <input type="text" name="best_trick" id="id_best_trick_form" class="form-control" placeholder="Mejor truco del ganador">
+                    </div>
+                </div>
+                <div class="container">
+                    <button class="btn btn-primary mt-3" id="id_submit" type="submit">Finalizar evento</button>
+                </div>
+            </form>
+		        {% endif %}
+
+		    {% else %}
+		        {% if es_creador or user.is_admin %}
+            <div class="mt-5">
+                {% if num_invitaciones_pendientes > 0 %}
+                <p>Invitaciones que aún no han sido aceptadas: {{num_invitaciones_pendientes}}</p>
+                <p>Asegúrate de que todos los participantes han aceptado su invitación antes de dar el evento por comenzado.</p>
+		        {% elif num_invitaciones_pendientes == 0 %}
+                <p>Todos los participantes han aceptado su invitación.</p>
+		        {% endif %}
+                <a class="btn btn-primary" id="id_comenzar" href="{% url 'eventos:comenzar-evento' evento_id=evento.id %}">COMENZAR EVENTO</a>
+            </div>
+		        {% endif %}
+
+		    {% endif %}
+
+            {% if es_creador or user.is_admin %}
+            <div class="d-flex justify-content-end mt-5">
+                <a class="btn btn-danger" id="id_eliminar" href="{% url 'eventos:eliminar-evento' evento_id=evento.id %}">Eliminar evento</a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+
+<script>
+    let vue = new Vue({
+        el:'#id_app',
+        delimiters:["[[","]]"],
+        data: {
+            trick: $('#id_best_trick').text().toLowerCase(),
+        },
+    })
+</script>
+
+<script>
+    $('#id_submit').confirm({
+        title: 'Confirmación',
+        content: '¿Estás seguro de que quieres finalizar el evento?',
+        type: 'dark',
+        buttons: {
+            confirmar: {
+                text: 'Confirmar',
+                btnClass: 'btn-blue',
+                action: function(){
+                    $('#id_form_finalizar').submit();
+                    location.reload();
+                }
+            },
+            cancelar: function () {
+                // pass
+            },
+        }
+    });
+
+    $('#id_comenzar').confirm({
+        title: 'Confirmación',
+        content: '¿Estás seguro de que quieres comenzar el evento?',
+        type: 'dark',
+        buttons: {
+            confirmar: {
+                text: 'Confirmar',
+                btnClass: 'btn-blue',
+                action: function(){
+                    window.location.href = $('#id_comenzar').attr('href');
+                }
+            },
+            cancelar: function () {
+                // pass
+            },
+        }
+    });
+
+    $('#id_eliminar').confirm({
+        title: 'Confirmación',
+        content: '¿Estás seguro de que quieres eliminar el evento?',
+        type: 'red',
+        buttons: {
+            confirmar: {
+                text: 'Confirmar',
+                btnClass: 'btn-blue',
+                action: function(){
+                    window.location.href = $('#id_eliminar').attr('href');
+                }
+            },
+            cancelar: function () {
+                // pass
+            },
+        }
+    });
+</script>
+
+
+{% endblock content %}

@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<style>
+    p, ul {
+        font-size: 1.3rem;
+    }
+    .container {
+        background-color: white;
+        border-radius: 10px;
+    }
+    ul {
+        width: fit-content;
+    }
+</style>
+
+<div class="container d-flex flex-column align-items-center">
+    <div class="w-75">
+        <img class="banner img-fluid" src="{% static 'gameofskate/1130x500.png' %}" alt="">
+    </div>
+    <p><strong>GameOfSkate</strong> es el sitio web en el que podrás guardar un registro cada vez que participes en un...</p>
+    <ul class="list-group list-group-flush">
+        <li class="list-group-item text-center">S.K.A.T.E.</li>
+        <li class="list-group-item text-center">O.S.I.T.O.</li>
+        <li class="list-group-item text-center">S.K.8.</li>
+        <li class="list-group-item text-center">C.H.A.C.A.</li>
+        <li class="list-group-item text-center">B.R.U.T.O.</li>
+    </ul>
+    <p><a href="{% url 'register' %}">Regístrate</a> o <a href="{% url 'login' %}">inicia sesión</a> para comenzar.</p>
+</div>
+{% endblock content %}
